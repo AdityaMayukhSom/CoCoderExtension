@@ -4,8 +4,8 @@ import {
   ContestPlatform,
   ContestPlatformSchema,
 } from "@/types/contest";
+import axios, { AxiosError } from "axios";
 import z from "zod";
-import axios, { AxiosError, AxiosResponse } from "axios";
 
 export const ContestListRequestSchema = z.object({
   platforms: z.array(ContestPlatformSchema),
@@ -24,13 +24,12 @@ export const fetchContests = async (
   ...platforms: ContestPlatform[]
 ): Promise<ContestData[]> => {
   try {
-    const url = `https://api.axantial.com/v1/get-upcoming-contests?platforms=Codeforces,LeetCode,CodeChef`;
     const params: ContestListRequest = { platforms };
-
-    const response = await axios.get<ContestListResponse>(url);
-
+    const response = await axios.get<ContestListResponse>(
+      `/api/upcoming-contests`,
+      { baseURL: "https://www.adityamayukhsom.me", params: params }
+    );
     const jsonResponse = response.data;
-    console.log(jsonResponse);
     const parsedData = ContestListResponseSchema.parse(jsonResponse);
     return parsedData.contests;
   } catch (error) {
